@@ -5,11 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Clone</title>
     <style>
-        body { display: flex; height: 100vh; margin: 0; font-family: Arial, sans-serif; }
-        .sidebar { width: 20%; background: #2c2f33; padding: 10px; color: white; }
-        .chat-container { width: 80%; background: #23272a; padding: 10px; color: white; display: flex; flex-direction: column; }
-        .messages { background: #2c2f33; padding: 10px; flex-grow: 1; overflow-y: scroll; border-radius: 5px; }
-        .input-container { display: flex; margin-top: 10px; }
+        body { display: flex; height: 100vh; margin: 0; font-family: Arial, sans-serif; background: #36393f; color: white; }
+        .sidebar { width: 18%; background: #2f3136; padding: 10px; display: flex; flex-direction: column; }
+        .server-name { font-size: 18px; font-weight: bold; padding: 10px; background: #23272a; text-align: center; }
+        .channels, .users { flex-grow: 1; padding: 10px; }
+        .channels li, .users li { list-style: none; padding: 8px; cursor: pointer; }
+        .channels li:hover, .users li:hover { background: #40444b; border-radius: 5px; }
+        .chat-container { width: 82%; display: flex; flex-direction: column; }
+        .chat-header { background: #23272a; padding: 10px; font-size: 18px; font-weight: bold; }
+        .messages { flex-grow: 1; padding: 10px; overflow-y: auto; }
+        .message { display: flex; align-items: center; margin-bottom: 10px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; background: #5865F2; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .msg-content { background: #40444b; padding: 10px; border-radius: 5px; }
+        .input-container { display: flex; padding: 10px; background: #2f3136; }
         input { flex-grow: 1; padding: 10px; border: none; border-radius: 5px; background: #40444b; color: white; }
         button { padding: 10px; border: none; border-radius: 5px; background: #5865F2; color: white; margin-left: 5px; cursor: pointer; }
         button:hover { background: #4752c4; }
@@ -17,18 +25,21 @@
 </head>
 <body>
     <div class="sidebar">
-        <h2>Channels</h2>
-        <ul id="channels">
-            <li onclick="switchChannel('general')"># general</li>
-            <li onclick="switchChannel('random')"># random</li>
-            <li onclick="switchChannel('gaming')"># gaming</li>
-        </ul>
+        <div class="server-name">My Server</div>
+        <div class="channels">
+            <h3>Channels</h3>
+            <ul>
+                <li onclick="switchChannel('general')"># general</li>
+                <li onclick="switchChannel('random')"># random</li>
+                <li onclick="switchChannel('gaming')"># gaming</li>
+            </ul>
+        </div>
     </div>
     <div class="chat-container">
-        <h2 id="channelTitle"># general</h2>
+        <div class="chat-header" id="channelTitle"># general</div>
         <div class="messages" id="messages"></div>
         <div class="input-container">
-            <input type="text" id="messageInput" placeholder="Type a message...">
+            <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleEnter(event)">
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
@@ -42,7 +53,8 @@
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             if (message) {
-                channels[currentChannel].push(message);
+                const msgObj = { user: 'User', text: message, time: new Date().toLocaleTimeString() };
+                channels[currentChannel].push(msgObj);
                 updateMessages();
                 input.value = '';
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
@@ -59,10 +71,20 @@
             messagesDiv.innerHTML = '';
             channels[currentChannel].forEach(msg => {
                 const msgDiv = document.createElement('div');
-                msgDiv.textContent = msg;
-                msgDiv.style.marginBottom = '10px';
+                msgDiv.classList.add('message');
+                msgDiv.innerHTML = `
+                    <div class="avatar">U</div>
+                    <div>
+                        <strong>${msg.user}</strong> <span style="font-size: 12px; color: #bbb;">${msg.time}</span>
+                        <div class="msg-content">${msg.text}</div>
+                    </div>
+                `;
                 messagesDiv.appendChild(msgDiv);
             });
+        }
+        
+        function handleEnter(event) {
+            if (event.key === 'Enter') sendMessage();
         }
     </script>
 </body>
